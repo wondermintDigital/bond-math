@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straddle Term-Structure Comparator</title>
+<style>
+  :root{
+    --ink:#0b0f14; --panel:#131a22; --panel2:#0f151c; --line:#223040;
+    --fg:#e8edf2; --mut:#7d8b99; --dim:#4a5764;
+    --flame:#f0a13a; --cheap:#3fb488; --rich:#e0603c;
+    --mono:ui-monospace,SFMono-Regular,Menlo,"JetBrains Mono",monospace;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink);color:var(--fg);font-family:var(--ui);
+    line-height:1.4;padding:18px;max-width:640px;margin:0 auto;-webkit-text-size-adjust:100%}
+  h1{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+  .sub{color:var(--mut);font-size:11.5px;letter-spacing:.03em;margin-bottom:18px}
+  .sub b{color:var(--flame);font-weight:600}
+  label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+  input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--fg);
+    font-family:var(--mono);font-size:16px;padding:9px 10px;border-radius:7px;outline:none}
+  input:focus{border-color:var(--flame)}
+  .spot-row{margin-bottom:16px}
+  .legs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .leg{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;transition:box-shadow .25s ease,border-color .25s ease}
+  .leg.cheaper{border-color:rgba(63,180,136,.55);box-shadow:0 0 0 1px rgba(63,180,136,.30),0 0 20px rgba(63,180,136,.20)}
+  .leg .tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--flame);margin-bottom:11px;font-weight:700;overflow:hidden}
+  .cheap-badge{display:none;float:right;font-size:9px;letter-spacing:.12em;color:#ffdf3d;font-weight:700;background:rgba(255,223,61,.10);border:1px solid rgba(255,223,61,.35);padding:2px 7px;border-radius:10px;text-transform:uppercase;line-height:1.3}
+  .leg.cheaper .cheap-badge{display:inline-block}
+  .leg .field{margin-bottom:10px}
+  .leg .field:last-child{margin-bottom:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .out{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+  .out .cols{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .out .col{padding:0 4px}
+  .out .col:first-child{border-right:1px solid var(--line);padding-right:12px}
+  .out .col:last-child{padding-left:12px}
+  .metric{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(34,48,64,.5)}
+  .metric:last-child{border-bottom:none}
+  .metric .k{font-size:10.5px;color:var(--mut);letter-spacing:.02em}
+  .metric .v{font-family:var(--mono);font-size:13.5px;font-weight:600}
+  .colhead{font-family:var(--mono);font-size:12px;color:var(--fg);font-weight:700;padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .colhead .iv{color:var(--flame)}
+  .hero{background:linear-gradient(160deg,#1a130a,#131a22);border:1px solid #3a2c14;border-radius:12px;padding:16px;margin-bottom:12px}
+  .hero .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--flame);margin-bottom:8px;font-weight:700}
+  .hero .big{font-family:var(--mono);font-size:34px;font-weight:700;line-height:1;letter-spacing:-.01em}
+  .hero .big span{font-size:16px;color:var(--mut);font-weight:500}
+  .hero .note{font-size:12px;color:var(--mut);margin-top:9px;line-height:1.5}
+  .hero .note b{color:var(--fg);font-weight:600}
+  .verdict{border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.5;border:1px solid}
+  .verdict.cheap{background:rgba(63,180,136,.09);border-color:rgba(63,180,136,.35)}
+  .verdict.rich{background:rgba(224,96,60,.09);border-color:rgba(224,96,60,.35)}
+  .verdict b{font-weight:700}
+  .c-cheap{color:var(--cheap)} .c-rich{color:var(--rich)} .c-flame{color:var(--flame)}
+  .warn{color:var(--rich);font-size:11px;margin-top:6px}
+  .foot{color:var(--dim);font-size:10.5px;line-height:1.6;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  @media(max-width:480px){
+    .out .cols{grid-template-columns:1fr;gap:14px}
+    .out .col:first-child{border-right:none;border-bottom:1px solid var(--line);padding:0 0 12px 0}
+    .out .col:last-child{padding:0}
+  }
+</style>
+</head>
+<body>
+  <h1>Straddle Comparator</h1>
+  <div class="sub">Compare two expiries on <b>vol</b>, not dollars. The signal is the <b>forward vol</b> — the marginal cost of the extra days.</div>
+
+  <div class="spot-row">
+    <label>Spot (underlying mid)</label>
+    <input id="spot" type="text" inputmode="decimal" value="10.30">
+  </div>
+
+  <div class="legs">
+    <div class="leg" id="legA">
+      <div class="tag">Near expiry<span class="cheap-badge">Cheaper</span></div>
+      <div class="field"><label>Days to expiry</label><input id="dteA" type="text" inputmode="decimal" value="2"></div>
+      <div class="grid2">
+        <div class="field"><label>Strike</label><input id="kA" type="text" inputmode="decimal" value="10.5"></div>
+        <div class="field"><label>Straddle $</label><input id="sA" type="text" inputmode="decimal" value="0.36"></div>
+      </div>
+    </div>
+    <div class="leg" id="legB">
+      <div class="tag">Far expiry<span class="cheap-badge">Cheaper</span></div>
+      <div class="field"><label>Days to expiry</label><input id="dteB" type="text" inputmode="decimal" value="4"></div>
+      <div class="grid2">
+        <div class="field"><label>Strike</label><input id="kB" type="text" inputmode="decimal" value="10.5"></div>
+        <div class="field"><label>Straddle $</label><input id="sB" type="text" inputmode="decimal" value="0.395"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spot-row">
+    <label>Your realized-vol forecast %  ·  optional, drives the edge call</label>
+    <input id="rv" type="text" inputmode="decimal" placeholder="e.g. 35" value="35">
+  </div>
+
+  <div id="verdict"></div>
+
+  <div class="hero">
+    <div class="lab">Forward vol · marginal days</div>
+    <div class="big" id="fwdVol">—</div>
+    <div class="note" id="fwdNote"></div>
+  </div>
+
+  <div class="out">
+    <div class="cols">
+      <div class="col" id="colA"></div>
+      <div class="col" id="colB"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    IV is solved from the straddle via Black–Scholes at your strike (moneyness handled, so a strike off spot is fine). Forward vol assumes variance adds in time: σ_fwd = √[(σ_B²·t_B − σ_A²·t_A)/(t_B − t_A)]. Uses calendar days /365, r = 0. Day-count and mid vs. traded fills will shift the absolutes; the near-vs-far comparison is what's robust. Not advice.
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value);
+
+function normCdf(x){
+  // Abramowitz-Stegun
+  const t = 1/(1+0.2316419*Math.abs(x));
+  const d = 0.3989422804014327*Math.exp(-x*x/2);
+  let p = d*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  return x>0 ? 1-p : p;
+}
+function bs(S,K,t,sig,cp){
+  if(sig<=0||t<=0) return Math.max(0, cp==='c'? S-K : K-S);
+  const d1=(Math.log(S/K)+0.5*sig*sig*t)/(sig*Math.sqrt(t));
+  const d2=d1-sig*Math.sqrt(t);
+  return cp==='c' ? S*normCdf(d1)-K*normCdf(d2) : K*normCdf(-d2)-S*normCdf(-d1);
+}
+function straddleIV(strad,S,K,t){
+  const intr=Math.abs(S-K);
+  if(strad<=intr+1e-9) return null;            // below/at intrinsic -> no vol solution
+  let lo=1e-6, hi=8;
+  const f=s => bs(S,K,t,s,'c')+bs(S,K,t,s,'p')-strad;
+  if(f(hi)<0) return hi;
+  for(let i=0;i<80;i++){ const m=(lo+hi)/2; if(f(m)>0) hi=m; else lo=m; }
+  return (lo+hi)/2;
+}
+const pct = x => (x*100).toFixed(1)+'%';
+const dol = x => x.toFixed(3);
+
+function legMetrics(S,K,dte,strad){
+  const t=dte/365;
+  const iv=straddleIV(strad,S,K,t);
+  const intr=Math.abs(S-K);
+  const tv=strad-intr;
+  const beLo=K-strad, beHi=K+strad;
+  const beMove=strad/S;                          // move needed by expiry (one side)
+  const dailyMove = iv!==null ? iv/Math.sqrt(252) : null; // implied 1-day 1σ
+  return {t,iv,intr,tv,beLo,beHi,beMove,dailyMove,strad};
+}
+
+function renderCol(id,name,m){
+  const iv = m.iv===null? '<span class="c-rich">n/a</span>' : `<span class="c-flame">${pct(m.iv)}</span>`;
+  $(id).innerHTML = `
+    <div class="colhead"><span>${name}</span><span class="iv">${m.iv===null?'—':pct(m.iv)}</span></div>
+    <div class="metric"><span class="k">Straddle</span><span class="v">${dol(m.strad)}</span></div>
+    <div class="metric"><span class="k">Time value</span><span class="v">${dol(m.tv)}</span></div>
+    <div class="metric"><span class="k">Implied vol</span><span class="v">${m.iv===null?'below intr.':pct(m.iv)}</span></div>
+    <div class="metric"><span class="k">Break-even</span><span class="v">${m.beLo.toFixed(2)} / ${m.beHi.toFixed(2)}</span></div>
+    <div class="metric"><span class="k">Move by exp</span><span class="v">±${(m.beMove*100).toFixed(1)}%</span></div>
+    <div class="metric"><span class="k">1-day 1σ</span><span class="v">${m.dailyMove===null?'—':'±'+(m.dailyMove*100).toFixed(1)+'%'}</span></div>
+  `;
+}
+
+function calc(){
+  const S=num('spot');
+  const A=legMetrics(S,num('kA'),num('dteA'),num('sA'));
+  const B=legMetrics(S,num('kB'),num('dteB'),num('sB'));
+  renderCol('colA','Near · '+$('dteA').value+'d',A);
+  renderCol('colB','Far · '+$('dteB').value+'d',B);
+
+  // forward vol between the two expiries
+  const rvIn=parseFloat($('rv').value);
+  const rvFore = isNaN(rvIn)? null : rvIn/100;
+  let fwd=null, fwdMsg='';
+  if(A.iv!==null && B.iv!==null && B.t>A.t){
+    const fv=(B.iv*B.iv*B.t - A.iv*A.iv*A.t)/(B.t-A.t);
+    if(fv>=0){
+      fwd=Math.sqrt(fv);
+      $('fwdVol').innerHTML = pct(fwd)+' <span>vol · days '+$('dteA').value+'→'+$('dteB').value+'</span>';
+      let base = `The back window prices <b>${pct(fwd)}</b> annualized — that's what the extra ${(B.t-A.t)*365} day(s) actually cost you.`;
+      if(rvFore!==null){
+        const edge=rvFore-fwd;
+        if(edge>0.01){ fwdMsg=`${base} You expect <b>${pct(rvFore)}</b> realized → the marginal days are <b class="c-cheap">cheap by ${(edge*100).toFixed(1)} vol pts</b>. Extending to the far expiry is +EV.`; }
+        else if(edge<-0.01){ fwdMsg=`${base} You expect <b>${pct(rvFore)}</b> realized → the marginal days are <b class="c-rich">rich by ${(-edge*100).toFixed(1)} vol pts</b>. The near expiry is the better buy.`; }
+        else { fwdMsg=`${base} That's roughly in line with your <b>${pct(rvFore)}</b> forecast — a wash between the two.`; }
+      } else { fwdMsg=base+' Enter a realized-vol forecast above to get the cheap/rich call.'; }
+    } else {
+      $('fwdVol').innerHTML='inverted <span>· back window ≈ 0 vol</span>';
+      fwdMsg='The far expiry prices <b>less total variance</b> than the near one — extreme front-loading (usually a data glitch or a stale far quote). Recheck the far straddle.';
+    }
+  } else {
+    $('fwdVol').innerHTML='—';
+    fwdMsg='Need a valid IV on both legs (straddle above intrinsic) and far DTE &gt; near DTE.';
+  }
+  $('fwdNote').innerHTML=fwdMsg;
+
+  // verdict + highlight cheaper leg by IV
+  const v=$('verdict');
+  if(A.iv!==null && B.iv!==null){
+    const aCheaper=A.iv<B.iv, bCheaper=B.iv<A.iv;
+    $('legA').classList.toggle('cheaper',aCheaper);
+    $('legB').classList.toggle('cheaper',bCheaper);
+    const cheaper = aCheaper ? 'Near' : (bCheaper ? 'Far' : 'Neither');
+    const gap=Math.abs(A.iv-B.iv)*100;
+    v.className='verdict cheap';
+    v.innerHTML = `<b>${cheaper} expiry is cheaper on vol</b> — ${pct(Math.min(A.iv,B.iv))} vs ${pct(Math.max(A.iv,B.iv))} (${gap.toFixed(1)} pt spread). `+
+      (A.iv>B.iv ? 'Term structure in backwardation: the front carries the gamma/event premium.' :
+                   'Term structure in contango: the front is the cheaper gamma.');
+  } else {
+    $('legA').classList.remove('cheaper');
+    $('legB').classList.remove('cheaper');
+    v.className='verdict rich';
+    v.innerHTML='<b>One leg is at/below intrinsic</b> — that bid/ask is a defensive quote, not a real vol. Use mids on liquid ATM strikes.';
+  }
+}
+
+document.querySelectorAll('input').forEach(el=>el.addEventListener('input',calc));
+calc();
+</script>
+</body>
+</html>
