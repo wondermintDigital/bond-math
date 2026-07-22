@@ -3,6 +3,7 @@ import { Gauge } from 'lucide-react';
 import {
   MATURITIES,
   DURATION_MODES,
+  COUPON_FREQUENCIES,
   priceFromYield,
   effectiveDuration,
   curveYieldAt,
@@ -24,6 +25,7 @@ const rateToY = (r) => EX_M.top + ((EX_RATE.max - r) / (EX_RATE.max - EX_RATE.mi
 
 export default function DurationExplorer({ curve }) {
   const [modeKey, setModeKey] = useState('bp100');
+  const [freqKey, setFreqKey] = useState('semi');
   const [notional, setNotional] = useState(100000);
   const [compare, setCompare] = useState(false);
   const [pos, setPos] = useState({ term: 10, ratePct: 7.75 });
@@ -35,16 +37,17 @@ export default function DurationExplorer({ curve }) {
 
   const scale = Math.max(0, notional) / 100;
   const mode = DURATION_MODES.find((m) => m.key === modeKey);
+  const freq = COUPON_FREQUENCIES.find((f) => f.key === freqKey);
   const { duration, p0, up, down } = useMemo(
-    () => effectiveDuration({ years: pos.term, rate: pos.ratePct / 100, bump: mode.bump }),
-    [pos, mode]
+    () => effectiveDuration({ years: pos.term, rate: pos.ratePct / 100, bump: mode.bump, frequency: freq.frequency }),
+    [pos, mode, freq]
   );
   const dv01Dollars = ((p0 * duration) / 10000) * scale;
   const bumpMoveDollars = ((down - up) / 2) * scale;
 
   // Compare mode: reprice the T+0 par bond (coupon fixed at the T+0 rate) with the T+1
   // ball's remaining term (x-axis), discounted at the T+1 rate (y-axis).
-  const t1Price = priceFromYield({ face: 100, couponRate: pos.ratePct / 100, years: pos2.term, ytm: pos2.ratePct / 100, frequency: 2 });
+  const t1Price = priceFromYield({ face: 100, couponRate: pos.ratePct / 100, years: pos2.term, ytm: pos2.ratePct / 100, frequency: freq.frequency });
   const t0Value = 100 * scale;
   const t1Value = t1Price * scale;
   const pnl = t1Value - t0Value;
@@ -192,7 +195,7 @@ export default function DurationExplorer({ curve }) {
         <div className="panel-header explorer-header">
           <div>
             <p className="eyebrow">Interactive Duration Explorer</p>
-            <h2>Drag the ball. Feel the duration.</h2>
+            <h2>Drag the ball. Calculate Duration.</h2>
             <p>Move across term (x-axis) and rate (y-axis) to see the effective duration of a par bond. Toggle the yield bump used to measure it, or turn on gain / loss comparison to reprice your bond at a T+1 discount rate.</p>
           </div>
           <div className="explorer-controls">
@@ -206,6 +209,19 @@ export default function DurationExplorer({ curve }) {
                   onClick={() => setModeKey(m.key)}
                 >
                   {m.label}
+                </button>
+              ))}
+            </div>
+            <div className="mode-toggle" role="tablist" aria-label="Coupon frequency">
+              {COUPON_FREQUENCIES.map((f) => (
+                <button
+                  key={f.key}
+                  role="tab"
+                  aria-selected={freqKey === f.key}
+                  className={freqKey === f.key ? 'active' : ''}
+                  onClick={() => setFreqKey(f.key)}
+                >
+                  {f.label}
                 </button>
               ))}
             </div>
@@ -345,6 +361,7 @@ export default function DurationExplorer({ curve }) {
             </div>
           ) : (
             <div ref={floatRef} className="explorer-float" style={{ left: `${leftPct}%`, top: `${topPct}%`, transform: floatTransform }}>
+              <div className="float-term">{termLabel}-Year Bond</div>
               <div className="dur">Duration: {duration.toFixed(2)} yrs</div>
               <div className="row"><span>Rate</span><strong>{pos.ratePct.toFixed(2)}%</strong></div>
               <div className="row"><span>Term</span><strong>{termLabel} yrs</strong></div>

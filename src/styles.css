@@ -245,6 +245,130 @@ h1 span, h2 span, .hero-copy h1 span { color: var(--mint); }
 .home-curve, .learning-section { margin-top: 30px; }
 .about-page { padding: 64px 0 96px; }
 .about-statement { font-size: clamp(20px, 2.4vw, 26px); line-height: 1.6; color: var(--text); max-width: 640px; margin-top: 18px; }
+.about-byline { color: var(--muted); font-size: 14px; margin-top: 20px; }
+
+/* ---- Day Count Accrual ---- */
+.daycount-section { margin: 12px 0 60px; }
+.daycount-panel { padding: 28px; }
+.daycount-period { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; max-width: 560px; }
+.daycount-period input { color-scheme: dark; }
+.daycount-warn { color: var(--danger); font-size: 13px; margin: 0 0 16px; }
+.daycount-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.daycount-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.daycount-col.active {
+  border-color: rgba(244, 199, 107, 0.6);
+  background: rgba(244, 199, 107, 0.07);
+}
+.daycount-method {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.daycount-method:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.25); }
+.daycount-method.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #f7d387, #cf9a3d);
+  color: #241703;
+  box-shadow: 0 6px 20px rgba(244, 199, 107, 0.25);
+}
+.daycount-value { font-size: 26px; font-weight: 800; color: var(--mint); letter-spacing: -0.01em; }
+.daycount-inputwrap { display: inline-flex; align-items: center; gap: 4px; }
+.daycount-input {
+  width: 92px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(244, 199, 107, 0.5);
+  border-radius: 8px;
+  color: var(--gold);
+  font-size: 24px;
+  font-weight: 800;
+  text-align: right;
+  padding: 6px 8px;
+  outline: none;
+}
+.daycount-inputwrap em { color: var(--gold); font-style: normal; font-size: 20px; font-weight: 800; }
+.daycount-tau { color: var(--muted); font-size: 12px; letter-spacing: 0.02em; min-height: 15px; }
+.daycount-metrics { margin-top: 22px; }
+
+/* ---- Roll Yield ---- */
+.roll-yield-section { margin: 12px 0 60px; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.roll-yield-figure {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  max-width: 980px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 30px 80px -30px rgba(132, 230, 179, 0.28), 0 20px 60px -30px rgba(244, 199, 107, 0.2);
+}
+/* Ambient halo behind the figure so the pure-black artwork reads as embedded, not pasted. */
+.roll-yield-figure::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(132, 230, 179, 0.35), rgba(244, 199, 107, 0.18) 55%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.roll-yield-figure img { display: block; width: 100%; height: auto; }
+.roll-yield-dev {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border: 1px solid rgba(244, 199, 107, 0.4);
+  border-radius: 999px;
+  background: rgba(244, 199, 107, 0.08);
+  color: #e7dcc2;
+  font-size: 14px;
+}
+.roll-yield-dev svg { color: var(--gold); flex: 0 0 auto; }
+.roll-yield-dev strong { color: var(--gold); }
+
+.daycount-uses-panel { margin-top: 18px; }
+.daycount-uses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.daycount-use {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 16px 16px 18px;
+}
+.daycount-use.active { border-color: rgba(244, 199, 107, 0.6); background: rgba(244, 199, 107, 0.07); }
+.daycount-use-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.daycount-use-head strong { color: var(--gold); font-size: 15px; letter-spacing: 0.01em; }
+.daycount-use-head em { color: var(--muted); font-style: normal; font-size: 12px; letter-spacing: 0.02em; }
+.daycount-use ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.daycount-use li {
+  position: relative;
+  padding-left: 16px;
+  color: #cdd8d2;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.daycount-use li::before { content: ''; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--mint); }
 .forward-vol-shell { margin: 12px 0 44px; }
 .forward-vol-shell iframe {
   width: 100%;
@@ -446,6 +570,15 @@ input[type='range'] { width: 100%; accent-color: var(--mint); }
   box-shadow: var(--shadow);
   z-index: 5;
 }
+.explorer-float .float-term {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
 .explorer-float .dur {
   font-weight: 800;
   color: var(--gold);
@@ -470,6 +603,10 @@ input[type='range'] { width: 100%; accent-color: var(--mint); }
   h1 { white-space: normal; }
   .tool-grid { grid-template-columns: repeat(2, 1fr); }
   .input-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .daycount-grid { grid-template-columns: repeat(2, 1fr); }
+  .daycount-uses { grid-template-columns: repeat(2, 1fr); }
+  .daycount-period { grid-template-columns: 1fr 1fr; }
+  .daycount-panel { padding: 20px; }
   .curve-panel .panel-header { flex-wrap: wrap; }
   .spread-chip { text-align: left; }
   .explorer-panel { padding: 20px; }

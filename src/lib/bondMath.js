@@ -17,6 +17,13 @@ export const DURATION_MODES = [
   { key: 'bp100', label: '100 bps', bump: 0.01, note: '100 bp bump' },
 ];
 
+export const COUPON_FREQUENCIES = [
+  { key: 'annual', label: 'Annual', frequency: 1 },
+  { key: 'semi', label: 'Semi-Annual', frequency: 2 },
+  { key: 'quarterly', label: 'Quarterly', frequency: 4 },
+  { key: 'monthly', label: 'Monthly', frequency: 12 },
+];
+
 export function priceFromYield({ face, couponRate, years, ytm, frequency }) {
   const periods = Math.round(years * frequency);
   const coupon = (face * couponRate) / frequency;
@@ -61,9 +68,8 @@ export function durationAndConvexity({ face, couponRate, years, ytm, frequency }
   return { price, macaulay, modified, convexity };
 }
 
-export function effectiveDuration({ years, rate, bump }) {
+export function effectiveDuration({ years, rate, bump, frequency = 2 }) {
   const face = 100;
-  const frequency = 2;
   const couponRate = rate; // par bond: coupon = yield, price ≈ 100
   const p0 = priceFromYield({ face, couponRate, years, ytm: rate, frequency });
   const up = priceFromYield({ face, couponRate, years, ytm: rate + bump, frequency });
@@ -87,6 +93,82 @@ export function curveYieldAt(curve, years) {
   }
   return pts[pts.length - 1].y;
 }
+
+// ---- Day count conventions ----
+// Interest that accrues over a period depends on how the year fraction is measured.
+// Each convention counts the days in the period and/or the days in a year differently.
+
+const isLeapYear = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+// Parse an ISO "YYYY-MM-DD" string into a plain {y, m, d} record (no timezone math).
+export const parseISO = (s) => {
+  const [y, m, d] = s.split('-').map(Number);
+  return { y, m, d };
+};
+
+// Actual calendar days between two dates.
+export function actualDays(start, end) {
+  const a = Date.UTC(start.y, start.m - 1, start.d);
+  const b = Date.UTC(end.y, end.m - 1, end.d);
+  return Math.round((b - a) / 86400000);
+}
+
+// 30/360 (US/NASD) day count: months are treated as 30 days, years as 360.
+export function days30360(start, end) {
+  let d1 = start.d;
+  let d2 = end.d;
+  if (d1 === 31) d1 = 30;
+  if (d2 === 31 && d1 === 30) d2 = 30;
+  return 360 * (end.y - start.y) + 30 * (end.m - start.m) + (d2 - d1);
+}
+
+// Actual/Actual (ISDA): split the period at year boundaries and divide each stub by
+// that calendar year's own length (365 or 366).
+export function yearFracActAct(start, end) {
+  if (start.y === end.y) {
+    return actualDays(start, end) / (isLeapYear(start.y) ? 366 : 365);
+  }
+  const startStub = actualDays(start, { y: start.y + 1, m: 1, d: 1 }) / (isLeapYear(start.y) ? 366 : 365);
+  const endStub = actualDays({ y: end.y, m: 1, d: 1 }, end) / (isLeapYear(end.y) ? 366 : 365);
+  return startStub + endStub + (end.y - start.y - 1);
+}
+
+// The four conventions offered on the Day Count Accrual page. `yearFrac` returns the
+// fraction of a year the [start, end] period represents under that convention.
+export const DAY_COUNTS = [
+  {
+    key: '30360',
+    label: '30/360',
+    alt: 'US / NASD',
+    desc: 'Months as 30 days, year as 360. Common for US corporate and agency bonds.',
+    uses: ['US corporate & municipal bonds', 'Agency debt and many mortgages', 'Keeps every coupon period equal'],
+    yearFrac: (s, e) => days30360(s, e) / 360,
+  },
+  {
+    key: 'act360',
+    label: 'Actual/360',
+    alt: 'Act/360',
+    desc: 'Actual days over a 360-day year. Money-market standard (T-bills, SOFR, commercial paper).',
+    uses: ['Money markets: T-bills, commercial paper, repo', 'SOFR, fed funds, USD & EUR interbank', 'Most US commercial loans'],
+    yearFrac: (s, e) => actualDays(s, e) / 360,
+  },
+  {
+    key: 'actact',
+    label: 'Actual/Actual',
+    alt: 'Act/Act',
+    desc: 'Actual days over the actual year length. Used for US Treasury notes and bonds.',
+    uses: ['US Treasury notes & bonds', 'Government bonds broadly', 'ICMA for Eurobonds · ISDA for swaps'],
+    yearFrac: yearFracActAct,
+  },
+  {
+    key: 'act365',
+    label: 'Actual/365',
+    alt: 'Act/365 Fixed',
+    desc: 'Actual days over a fixed 365-day year. The London interbank convention for sterling.',
+    uses: ['Sterling (GBP) money markets', 'GBP deposits & floating-rate notes', 'London interbank convention for GBP'],
+    yearFrac: (s, e) => actualDays(s, e) / 365,
+  },
+];
 
 export function money(value) {
   return Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

@@ -4,6 +4,7 @@ export const MENU_ITEMS = [
   { label: 'Duration & Price', to: '/duration-price', tip: 'Bond Math Calculator Based on Rate Moves' },
   { label: 'Amortization', to: '/amortization', tip: 'Loan and Bond Amortization Schedules' },
   { label: 'Roll Yield', to: '/roll-yield', tip: 'Bonds Rolling Down the Curve' },
+  { label: 'Day Count Accrual', to: '/day-count', tip: 'Accrued Interest and Day Count Conventions' },
   { label: 'Steepness and History', to: '/steepness', tip: 'Curve Shape Ranked Against History' },
   { label: 'Forward Vol', to: '/forward-vol', tip: 'Straddle Term-Structure Comparator' },
   { label: 'About', to: '/about', tip: 'What Bond Math Is For' },

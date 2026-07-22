@@ -7,6 +7,8 @@ import DurationPrice from './pages/DurationPrice';
 import Steepness from './pages/Steepness';
 import ForwardVol from './pages/ForwardVol';
 import About from './pages/About';
+import DayCountAccrual from './pages/DayCountAccrual';
+import RollYield from './pages/RollYield';
 import ComingSoon from './pages/ComingSoon';
 import { useYieldCurveData } from './lib/curveData';
 
@@ -59,7 +61,8 @@ function AppRoutes() {
         <Route path="/forward-vol" element={<ForwardVol />} />
         <Route path="/about" element={<About />} />
         <Route path="/amortization" element={<ComingSoon title="Amortization" tip="Loan and bond amortization schedules" />} />
-        <Route path="/roll-yield" element={<ComingSoon title="Roll Yield" tip="Bonds rolling down the curve" />} />
+        <Route path="/roll-yield" element={<RollYield />} />
+        <Route path="/day-count" element={<DayCountAccrual />} />
       </Routes>
       <Footer />
     </main>
