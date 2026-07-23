@@ -1,5 +1,5 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChevronDown, LineChart as LineChartIcon } from 'lucide-react';
+import { ArrowBigDown, ChevronDown, LineChart as LineChartIcon } from 'lucide-react';
 import { CurveTooltip } from './Tooltips';
 
 // Pads the y-axis by 0.50% on each side, rounded to the nearest 0.10%,
@@ -17,6 +17,11 @@ function ordinal(n) {
 
 export default function YieldCurvePanel({ curves, curveIndex, setCurveIndex, data, activeCurve, latestCurve, spread2s10s, curveShape, steepnessPercentile, source }) {
   const showToday = activeCurve.date !== latestCurve.date;
+  const lastIndex = Math.max(curves.length - 1, 1);
+  const sliderFrac = curveIndex / lastIndex;
+  // Center the arrow on the range thumb: thumb center is inset by half its
+  // width (~16px) at the ends, so nudge by 16*(0.5 - frac).
+  const arrowLeft = `calc(${sliderFrac * 100}% + ${(0.5 - sliderFrac) * 16}px)`;
   return (
     <article id="curve" className="panel curve-panel">
       <div className="panel-header">
@@ -29,7 +34,10 @@ export default function YieldCurvePanel({ curves, curveIndex, setCurveIndex, dat
           <strong>{spread2s10s} bps</strong>
           <em>{curveShape.toUpperCase()}: {ordinal(steepnessPercentile)} Percentile Steepness*</em>
         </div>
-        <button className="small-select">{activeCurve.date}<ChevronDown size={14} /></button>
+        <div className="date-hint-wrap">
+          <button className="small-select" type="button">{activeCurve.date}<ChevronDown size={14} /></button>
+          <span className="date-hint" role="tooltip">to change date change slider below</span>
+        </div>
       </div>
       <ResponsiveContainer width="100%" height={310}>
         <LineChart data={data} margin={{ top: 20, right: 18, bottom: 10, left: 0 }}>
@@ -50,6 +58,9 @@ export default function YieldCurvePanel({ curves, curveIndex, setCurveIndex, dat
         </div>
       )}
       <div className="slider-shell">
+        <span className="slider-arrow" style={{ left: arrowLeft }} aria-hidden="true">
+          <ArrowBigDown size={26} strokeWidth={2.25} />
+        </span>
         <input type="range" min="0" max={curves.length - 1} value={curveIndex} onChange={(e) => setCurveIndex(Number(e.target.value))} />
         <div className="slider-labels"><span>{curves[0]?.date}</span><span>{curves[curves.length - 1]?.date}</span></div>
       </div>

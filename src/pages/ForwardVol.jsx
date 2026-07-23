@@ -153,7 +153,7 @@ export default function ForwardVol() {
     <>
       <section className="container page-intro">
         <p className="eyebrow">Options · Volatility</p>
-        <h1 className="page-title">Forward Vol</h1>
+        <h1 className="page-title">Forward Volatility</h1>
         <p className="page-lede">
           Compare two option expiries on volatility instead of dollars. The tool solves each straddle&apos;s implied
           vol and extracts the forward vol between them — the true marginal cost of the extra days.
