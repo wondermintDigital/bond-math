@@ -571,9 +571,13 @@ input[type='range'] { width: 100%; accent-color: var(--mint); }
 .metric strong { color: var(--mint); font-size: 18px; }
 
 .lesson-list { display: grid; gap: 14px; }
-.lesson-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-.lesson-item strong { display: block; margin-bottom: 5px; }
-.lesson-item span { color: var(--muted); font-size: 13px; }
+.lesson-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.lesson-item strong { display: block; margin-bottom: 8px; }
+.lesson-body { max-width: 780px; }
+.lesson-subtitle { color: var(--muted); font-weight: 500; font-size: 14px; }
+.lesson-item .lesson-def { margin: 0 0 16px; color: var(--text); font-size: 14px; line-height: 1.6; }
+.lesson-item .lesson-calc { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+.lesson-calc span { color: var(--mint); font-weight: 600; }
 .lesson-icon { width: 42px; height: 42px; border-radius: 8px; display: grid; place-items: center; background: rgba(132,230,179,.1); color: var(--mint); flex: 0 0 auto; }
 .panel-header a, .ghost-link { color: var(--mint); font-weight: 700; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
 
