@@ -1,5 +1,5 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ArrowRight, BookOpen, Calculator, Sparkles, Target, WalletCards } from 'lucide-react';
+import { Calculator, CalendarDays, LineChart, TrendingDown, Waves } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MATURITIES } from '../lib/bondMath';
 import { ChartTooltip } from '../components/Tooltips';
@@ -15,43 +15,18 @@ export default function Home({ activeCurve }) {
       <section id="tools" className="container section-title-row">
         <div>
           <p className="eyebrow">Interactive Calculators</p>
-          <h2>Bond math tools built for actual workflow.</h2>
+          <h2>Bond math tools built for practitioners.</h2>
         </div>
-        <Link className="ghost-link" to="/#reference">View reference library <ArrowRight size={16} /></Link>
       </section>
 
       <section className="tool-grid container">
         <ToolCard as={Link} to="/duration-price" icon={<Calculator />} title="Duration &amp; Price" text="Solve price, yield, premium/discount, Macaulay duration, modified duration, and convexity — plus the interactive duration explorer." />
-        <ToolCard icon={<Target />} title="Yield-to-Call / Worst" text="Framework placeholder for call schedules and worst-case yield logic across maturity and call dates." />
-        <ToolCard icon={<Sparkles />} title="OAS Lab" text="Callable-bond option spread concept area: add rates paths, vol assumptions, and model spread after you connect your data." />
-        <ToolCard icon={<WalletCards />} title="Accrued Interest" text="Day count toggles for Act/Act, 30/360, and Act/360 with clean vs. dirty price explainer." />
+        <ToolCard as={Link} to="/roll-yield" icon={<TrendingDown />} title="Roll Yield" text="Break carry into its two pieces — the level you earn holding the bond, and the roll-down gain as it slides down an upward-sloping curve." />
+        <ToolCard as={Link} to="/day-count" icon={<CalendarDays />} title="Day Count Accrual" text="Accrued interest across Act/Act, 30/360, and Act/360 conventions, with a clean vs. dirty price explainer." />
+        <ToolCard as={Link} to="/steepness" icon={<LineChart />} title="Steepness &amp; History" text="Rank today's curve shape against decades of history — 2s10s and other spreads in interactive percentile context." />
+        <ToolCard as={Link} to="/forward-vol" icon={<Waves />} title="Forward Vol" text="Compare straddle pricing across expiries to back out forward volatility along the options term structure." />
       </section>
 
-      <section id="reference" className="container reference-shell">
-        <div className="reference-copy">
-          <p className="eyebrow">Practical Reference Content</p>
-          <h2>Practitioner-first fixed income notes.</h2>
-          <p>
-            Use this section for SEO content: bond terms, day count conventions, duration intuition,
-            CFA / Series 7 prep, and first-principles explainers written in a practical tone.
-          </p>
-        </div>
-        <div className="reference-list">
-          {[
-            'Clean price vs. dirty price with live accrued interest numbers',
-            'Day count convention cheat sheet: Act/Act, 30/360, Act/360',
-            'Duration as center of mass: why the timing of cash flows matters',
-            'Bond math from first principles: cash flows, discounting, and yields',
-          ].map((item) => (
-            <div className="reference-item" key={item}>
-              <BookOpen size={18} />
-              <span>{item}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <CTA />
     </>
   );
 }
@@ -61,7 +36,7 @@ function Hero({ activeCurve, curveShape, spread2s10s }) {
   return (
     <section id="home" className="hero container">
       <div className="hero-copy">
-        <p className="pill">LEARN BONDS WITH CLARITY</p>
+        <p className="pill">LEARN • VISUALIZE • CALCULATE</p>
         <h1>Bond Math</h1>
         <p className="hero-heading-subtitle">Calculate Better Decisions</p>
         <p className="hero-subtitle">
@@ -113,12 +88,3 @@ function ToolCard({ icon, title, text, as: Component = 'article', ...rest }) {
   );
 }
 
-function CTA() {
-  return (
-    <section className="container cta">
-      <div className="brand-mark large">BM</div>
-      <div><h2>Ready to make bond math intuitive?</h2><p>Connect your Treasury history sheet, refine the calculators, and turn this into a fixed income learning product.</p></div>
-      <Link className="primary-btn" to="/duration-price">Start Building <ArrowRight size={18} /></Link>
-    </section>
-  );
-}

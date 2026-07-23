@@ -10,7 +10,7 @@ export default function DurationPrice({ latestCurve }) {
     <>
       <section className="container page-intro">
         <p className="eyebrow">Duration &amp; Price</p>
-        <h1 className="page-title">Bond math calculator, built around rate moves.</h1>
+        <h1 className="page-title">Bond Math and Rate Moves</h1>
         <p className="page-lede">
           Drag the ball to feel duration across term and rate, then tune the exact bond in the calculator below —
           price, yield, DV01, convexity, and the cash-flow timeline all update together.
