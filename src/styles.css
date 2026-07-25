@@ -610,6 +610,62 @@ input[type='range'] { width: 100%; accent-color: var(--mint); }
 .curve-legend .swatch.mint { border-color: var(--mint); }
 .curve-legend .swatch.grey { border-top-style: dashed; border-top-width: 2px; border-color: rgba(214, 222, 218, 0.45); }
 
+/* ---- Amortization ---- */
+.amort-input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.amort-prepay-mode { margin-top: 18px; }
+.amort-prepay-mode > span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 7px; }
+.amort-prepay-mode .mode-toggle { display: flex; width: 100%; }
+.amort-prepay-mode .mode-toggle button { flex: 1; white-space: nowrap; }
+.amort-prepay-mode em { display: block; color: var(--muted); font-size: 12px; font-style: normal; line-height: 1.5; margin-top: 9px; }
+/* Bar-chart legend: solid blocks rather than the line-chart rules. */
+.amort-legend .swatch { width: 12px; height: 12px; border: 0; border-radius: 3px; }
+.amort-legend .swatch.mint { background: var(--mint); }
+.amort-legend .swatch.gold { background: var(--gold); }
+.amort-legend .swatch.gold-dark { background: var(--gold-2); }
+.csv-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border: 1px solid rgba(244, 199, 107, .5);
+  border-radius: 999px;
+  background: rgba(244, 199, 107, .03);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.csv-btn:hover { background: rgba(244, 199, 107, .12); border-color: var(--gold); }
+.amort-table-wrap { max-height: 540px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+.amort-table { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.amort-table th,
+.amort-table td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.amort-table th:first-child, .amort-table td:first-child,
+.amort-table th:nth-child(2), .amort-table td:nth-child(2) { text-align: left; }
+.amort-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #0b1414;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .02em;
+}
+.amort-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+.amort-table tbody td { color: #d5ded9; }
+.amort-table .amort-cf { color: var(--gold); }
+.amort-table tfoot td {
+  background: #0b1414;
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+.amort-table tfoot td:first-child { text-align: left; color: var(--muted); }
+
 /* ---- Duration Explorer ---- */
 .explorer-section { margin-top: 12px; }
 .explorer-panel { padding: 28px; }

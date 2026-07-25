@@ -18,6 +18,21 @@ export function CurveTooltip({ active, payload, label, latestDate, showToday }) 
   );
 }
 
+export function AmortTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  const at = (key) => payload.find((p) => p.dataKey === key)?.value || 0;
+  const total = at('interest') + at('principal') + at('prepay');
+  return (
+    <div className="tooltip">
+      <span>Year {label}</span>
+      <strong>${money(total)}</strong>
+      <em className="tooltip-today">Interest ${money(at('interest'))}</em>
+      <em className="tooltip-today">Principal ${money(at('principal'))}</em>
+      {at('prepay') > 0 && <em className="tooltip-today">Prepay ${money(at('prepay'))}</em>}
+    </div>
+  );
+}
+
 export function CashFlowTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   const coupon = payload.find((p) => p.dataKey === 'coupon')?.value || 0;

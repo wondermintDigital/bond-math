@@ -9,7 +9,7 @@ import ForwardVol from './pages/ForwardVol';
 import About from './pages/About';
 import DayCountAccrual from './pages/DayCountAccrual';
 import RollYield from './pages/RollYield';
-import ComingSoon from './pages/ComingSoon';
+import Amortization from './pages/Amortization';
 import { useYieldCurveData } from './lib/curveData';
 
 // Scrolls to a #hash target on navigation (cross-page anchors like "/#curve"),
@@ -60,7 +60,7 @@ function AppRoutes() {
         />
         <Route path="/forward-vol" element={<ForwardVol />} />
         <Route path="/about" element={<About />} />
-        <Route path="/amortization" element={<ComingSoon title="Amortization" tip="Loan and bond amortization schedules" />} />
+        <Route path="/amortization" element={<Amortization />} />
         <Route path="/roll-yield" element={<RollYield />} />
         <Route path="/day-count" element={<DayCountAccrual />} />
       </Routes>
