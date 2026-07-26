@@ -34,7 +34,23 @@ export default function Home({ activeCurve }) {
 function Hero({ activeCurve, curveShape, spread2s10s }) {
   const miniData = MATURITIES.map((m) => ({ x: m.label, y: activeCurve[m.key] }));
   return (
-    <section id="home" className="hero container">
+    <div className="hero-shell">
+      {/* AV1 first (smallest), H.264 as the universal fallback. Poster is frame 0 so there's no jump on play. */}
+      <video
+        className="hero-video"
+        poster="/hero-ambient-poster.jpg"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/hero-ambient.webm" type="video/webm; codecs=av01.0.05M.08" />
+        <source src="/hero-ambient.mp4" type="video/mp4; codecs=avc1.640028" />
+      </video>
+      <div className="hero-scrim" />
+      <section id="home" className="hero container">
       <div className="hero-copy">
         <p className="pill">LEARN • VISUALIZE • CALCULATE</p>
         <h1>Bond Math</h1>
@@ -74,7 +90,8 @@ function Hero({ activeCurve, curveShape, spread2s10s }) {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
